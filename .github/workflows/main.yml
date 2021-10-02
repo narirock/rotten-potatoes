@@ -4,7 +4,7 @@ on:
     branches: [main]
   workflow_dispatch:
 jobs:
-  build:
+  CI:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -24,4 +24,21 @@ jobs:
           tags: |
             narirock2/potatoes_kubdev:latest
             narirock2/potatoes_kubdev:${{ github.run_number }}
-            
+  CD:
+    needs: [CI]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Kubernetes set context
+        uses: Azure/k8s-set-context@1.1
+        with:
+          method: kubeconfig
+          kubeconfig: ${{secrets.K8S_KUBECONFIG}}
+      - name: Deploy to kubernetes cluster
+        uses: Azure/k8s-deploy@v1.3
+        with:
+          images: narirock2/potatoes_kubdev:${{ github.run_number }}
+          manifests: |
+            k8s/deployment.yaml
+

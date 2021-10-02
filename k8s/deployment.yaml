@@ -83,4 +83,4 @@ spec:
       nodePort: 30000
       protocol: TCP
       name: http
-  type: NodePort
+  type: LoadBalancer
